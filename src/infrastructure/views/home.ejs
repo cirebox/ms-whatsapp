@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp API - Documentação</title>
+  <style>
+    :root {
+      --primary-color: #25D366;
+      --secondary-color: #128C7E;
+      --dark-color: #075E54;
+      --light-color: #DCF8C6;
+      --gray-color: #f0f2f5;
+      --text-color: #333;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      background-color: var(--gray-color);
+      line-height: 1.6;
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    
+    h2 {
+      color: var(--secondary-color);
+      border-bottom: 2px solid var(--light-color);
+      padding-bottom: 0.5rem;
+      margin-top: 2rem;
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+      opacity: 0.9;
+    }
+    
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card h3 {
+      color: var(--dark-color);
+      margin-top: 0;
+    }
+    
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    
+    .button:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .features {
+      margin-top: 2rem;
+    }
+    
+    .feature-item {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .feature-icon {
+      margin-right: 0.5rem;
+      color: var(--primary-color);
+    }
+    
+    footer {
+      background-color: var(--dark-color);
+      color: white;
+      text-align: center;
+      padding: 1.5rem 0;
+      margin-top: 3rem;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+      color: white;
+    }
+    
+    .online {
+      background-color: #4CAF50;
+    }
+    
+    .offline {
+      background-color: #F44336;
+    }
+    
+    @media (max-width: 768px) {
+      .card-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>WhatsApp API</h1>
+    <p class="subtitle">Plataforma para integração de mensagens com WhatsApp</p>
+  </header>
+
+  <div class="container">
+    <div id="status">
+      Status da API: <span id="statusBadge" class="status-badge">Verificando...</span>
+    </div>
+    
+    <div class="card-container">
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>Autenticação</h3>
+        <p>Escaneie o QR Code com seu WhatsApp para começar a utilizar a API.</p>
+        <a href="/qrcode" class="button">Escanear QR Code</a>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon">📚</div>
+        <h3>Documentação</h3>
+        <p>Acesse a documentação completa da API com exemplos de uso e referência de endpoints.</p>
+        <a href="/documentation" class="button">Ver Documentação</a>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>Comece a Usar</h3>
+        <p>Integre mensagens do WhatsApp no seu sistema em minutos.</p>
+        <a href="/documentation#/messages/post_api_messages" class="button">Endpoints de Mensagens</a>
+      </div>
+    </div>
+    
+    <h2>Recursos</h2>
+    <div class="features">
+      <div class="feature-item">
+        <span class="feature-icon">✅</span>
+        <span>Envio de mensagens de texto e mídia</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">✅</span>
+        <span>Recebimento automático de mensagens</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">✅</span>
+        <span>Integração com modelos de linguagem (LLM)</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">✅</span>
+        <span>Interface web para autenticação</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">✅</span>
+        <span>Estrutura escalável seguindo princípios SOLID</span>
+      </div>
+    </div>
+    
+    <h2>Como Funciona</h2>
+    <p>
+      A WhatsApp API permite que você envie e receba mensagens através do WhatsApp usando simples requisições HTTP.
+      Após a autenticação usando o QR Code, você pode integrar seu sistema facilmente com o WhatsApp.
+    </p>
+    <p>
+      A API também inclui suporte para processamento automatizado de mensagens recebidas usando modelos de linguagem (LLM).
+    </p>
+  </div>
+  
+  <footer>
+    <p>WhatsApp API &copy; <%= new Date().getFullYear() %> - Powered by Node.js, TypeScript e Fastify</p>
+  </footer>
+
+  <script>
+    // Verifica o status da API
+    async function checkApiStatus() {
+      try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        
+        const statusBadge = document.getElementById('statusBadge');
+        
+        if (data.status === 'online') {
+          statusBadge.textContent = 'Online';
+          statusBadge.className = 'status-badge online';
+        } else {
+          statusBadge.textContent = 'Offline';
+          statusBadge.className = 'status-badge offline';
+        }
+      } catch (error) {
+        const statusBadge = document.getElementById('statusBadge');
+        statusBadge.textContent = 'Offline';
+        statusBadge.className = 'status-badge offline';
+      }
+    }
+    
+    // Verifica o status ao carregar a página
+    document.addEventListener('DOMContentLoaded', checkApiStatus);
+    
+    // Verifica o status a cada 30 segundos
+    setInterval(checkApiStatus, 30000);
+  </script>
+</body>
+</html>

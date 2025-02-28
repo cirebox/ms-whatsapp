@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+    .container {
+      text-align: center;
+      max-width: 600px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #25D366;
+      margin-bottom: 20px;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
+      color: #666;
+    }
+    .qr-container {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+    #qrcode {
+      margin: 0 auto;
+      width: 250px;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    #qrcode img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #25D366;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .pulse {
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #ebebeb;
+    }
+    .authenticated {
+      background-color: #25D366;
+      color: white;
+    }
+    .refreshing {
+      color: #999;
+      font-style: italic;
+      margin-top: 10px;
+      font-size: 0.8em;
+    }
+    .note {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f8f8f8;
+      border-left: 3px solid #25D366;
+      text-align: left;
+      font-size: 0.9em;
+    }
+    .debug-link {
+      margin-top: 30px;
+      font-size: 0.8em;
+      color: #999;
+    }
+    .debug-link a {
+      color: #666;
+      text-decoration: none;
+    }
+    .debug-link a:hover {
+      text-decoration: underline;
+    }
+    .instructions {
+      margin-top: 2rem;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      text-align: left;
+    }
+    .instructions ol {
+      margin-left: 20px;
+      padding-left: 20px;
+    }
+    .feature-icon {
+      margin-right: 0.5rem;
+      color: #25D366;
+    }
+    #error-message {
+      display: none;
+      color: #e74c3c;
+      background-color: #fceae9;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 15px;
+      font-size: 0.9em;
+    }
+    .retry-button {
+      display: inline-block;
+      background-color: #25D366;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .retry-button:hover {
+      background-color: #128C7E;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>WhatsApp API - Scanner de QR Code</h1>
+    <p class="subtitle">Escaneie o QR Code com seu WhatsApp para conectar-se à API</p>
+    
+    <div id="statusContainer" class="status <%= isAuthenticated ? 'authenticated' : '' %>">
+      <p id="statusText">
+        <% if (isAuthenticated) { %>
+          Conectado ao WhatsApp ✓
+        <% } else { %>
+          Aguardando escaneamento do QR Code...
+        <% } %>
+      </p>
+    </div>
+    
+    <div class="qr-container" id="qrContainer" style="<%= isAuthenticated ? 'display:none;' : '' %>">
+      <div id="qrcode">
+        <div class="loader" id="loader"></div>
+        <p class="pulse" id="loading-text">Gerando QR Code...</p>
+      </div>
+      <div id="rawQRCode" style="display:none; margin-top: 15px;">
+        <p>Se o QR Code não for exibido corretamente, você pode usar este código:</p>
+        <textarea id="qrCodeText" style="width: 100%; height: 100px; margin-top: 10px; font-size: 12px;" readonly></textarea>
+        <p>Copie este código e use em https://web.whatsapp.com</p>
+      </div>
+      <p class="refreshing">O QR Code será atualizado a cada 15 segundos.</p>
+      <p class="note">Nota: Para uma experiência melhor, use a versão do WhatsApp Web diretamente no dispositivo onde escaneará o código.</p>
+    </div>
+    
+    <div id="error-message">
+      <p>Ocorreu um problema ao carregar o QR Code. O servidor pode estar iniciando...</p>
+      <button class="retry-button" onclick="window.location.reload()">Tentar novamente</button>
+    </div>
+    
+    <div class="instructions">
+      <h3>Instruções:</h3>
+      <ol>
+        <li>Abra o WhatsApp no seu telefone</li>
+        <li>Toque em Menu ou Configurações e selecione "WhatsApp Web"</li>
+        <li>Aponte a câmera do seu telefone para o QR Code</li>
+        <li>Após a autenticação, você poderá usar a API para enviar e receber mensagens</li>
+      </ol>
+    </div>
+    
+    <div class="debug-link">
+      <a href="/debug/qrcode">Exibir QR Code de teste</a> | 
+      <a href="/">Voltar para página inicial</a>
+    </div>
+  </div>
+
+  <script>
+    // Elementos da página
+    const qrContainer = document.getElementById('qrContainer');
+    const qrcode = document.getElementById('qrcode');
+    const statusContainer = document.getElementById('statusContainer');
+    const statusText = document.getElementById('statusText');
+    const loader = document.getElementById('loader');
+    const loadingText = document.getElementById('loading-text');
+    const errorMessage = document.getElementById('error-message');
+    
+    // Contador para verificar se recebemos algum QR Code
+    let qrReceived = false;
+    
+    // Timer para mostrar erro se nenhum QR Code for recebido
+    const errorTimer = setTimeout(() => {
+      if (!qrReceived) {
+        errorMessage.style.display = 'block';
+        if (loader) loader.style.display = 'none';
+        if (loadingText) loadingText.style.display = 'none';
+      }
+    }, 15000); // 15 segundos
+    
+    // Função para mostrar o QR Code
+    function displayQRCode(qrData) {
+      qrReceived = true;
+      
+      if (loader) loader.style.display = 'none';
+      if (loadingText) loadingText.style.display = 'none';
+      
+      console.log("Exibindo QR Code:", qrData.substring(0, 50) + "...");
+      
+      // Exibir o QR code bruto em um textarea como backup
+      const rawQRCodeDiv = document.getElementById('rawQRCode');
+      const qrCodeTextarea = document.getElementById('qrCodeText');
+      
+      if (rawQRCodeDiv && qrCodeTextarea) {
+        rawQRCodeDiv.style.display = 'block';
+        qrCodeTextarea.value = qrData;
+      }
+      
+      // Criar ou atualizar a imagem
+      let qrImg = qrcode.querySelector('img');
+      if (!qrImg) {
+        qrImg = document.createElement('img');
+        qrcode.appendChild(qrImg);
+      }
+      
+      // Verificar se é uma URL ou um data URI válido
+      if (qrData.startsWith('http') || qrData.startsWith('data:image/')) {
+        qrImg.src = qrData;
+      } else {
+        // Se não for um formato reconhecido, tentar usar um serviço QR code externo
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
+        console.log("Usando serviço QR externo para exibir:", qrData.substring(0, 30) + "...");
+      }
+      
+      qrImg.alt = "QR Code do WhatsApp";
+      qrImg.onerror = function() {
+        console.error("Erro ao carregar QR Code, tentando alternativa...");
+        // Em caso de erro, usar serviço QR externo
+        this.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
+      };
+      
+      // Mostrar container do QR Code
+      qrContainer.style.display = 'block';
+      statusContainer.classList.remove('authenticated');
+      statusText.textContent = 'Aguardando escaneamento do QR Code...';
+      
+      // Esconder mensagem de erro
+      errorMessage.style.display = 'none';
+    }
+    
+    // Função para marcar como autenticado
+    function markAuthenticated() {
+      qrContainer.style.display = 'none';
+      statusContainer.classList.add('authenticated');
+      statusText.textContent = 'Conectado ao WhatsApp ✓';
+      errorMessage.style.display = 'none';
+    }
+    
+    // Função para atualizar o QR Code usando AJAX
+    function fetchQRCode() {
+      fetch('/api/qrcode')
+        .then(response => response.json())
+        .then(data => {
+          if (data.qrCode) {
+            displayQRCode(data.qrCode);
+          } else if (data.authenticated) {
+            markAuthenticated();
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao buscar QR Code:', error);
+          errorMessage.style.display = 'block';
+        });
+    }
+    
+    // Função para atualizar o QR Code usando Polling
+    function startQRCodePolling() {
+      // Primeira busca imediata
+      fetchQRCode();
+      
+      // Configurar intervalo de polling
+      setInterval(fetchQRCode, 5000); // A cada 5 segundos
+    }
+    
+    // Função para atualizar o QR Code usando Server-Sent Events
+    function setupQRCodeStream() {
+      try {
+        // Conecta ao stream SSE
+        const eventSource = new EventSource('/qrcode/stream');
+        
+        // Evento ao receber dados
+        // Evento ao receber dados
+        eventSource.onmessage = function(event) {
+          try {
+            console.log("Recebido evento SSE:", event.data.substring(0, 50) + "...");
+            const data = JSON.parse(event.data);
+            
+            if (data.qrCode === 'authenticated') {
+              // Usuário autenticado
+              markAuthenticated();
+              
+              // Verifica o status de autenticação periodicamente
+              setInterval(checkAuthStatus, 30000);
+              
+              // Fecha a conexão SSE
+              eventSource.close();
+            } else if (data.qrCode) {
+              // Trabalhar com o QR code bruto, sem tentar processá-lo como imagem
+              displayQRCode(data.qrCode);
+            }
+          } catch (e) {
+            console.error('Erro ao processar atualização do QR code:', e);
+            // Mesmo com erro, tentamos usar o evento bruto como possível código QR
+            try {
+              const rawData = event.data;
+              console.log("Tentando usar dados brutos do evento como QR code");
+              displayQRCode(rawData);
+            } catch (innerError) {
+              console.error("Falha também ao usar dados brutos:", innerError);
+              errorMessage.style.display = 'block';
+            }
+          }
+        };
+        
+        // Evento de erro
+        eventSource.onerror = function(err) {
+          console.error("Erro no SSE:", err);
+          eventSource.close();
+          
+          // Fallback para polling em caso de erro no SSE
+          console.log("Mudando para método de polling...");
+          startQRCodePolling();
+        };
+        
+        // Evento de abertura
+        eventSource.onopen = function() {
+          console.log("Conexão SSE estabelecida");
+        };
+      } catch (error) {
+        console.error("Erro ao configurar SSE:", error);
+        
+        // Fallback para polling
+        startQRCodePolling();
+      }
+    }
+    
+    // Função para verificar o status de autenticação
+    function checkAuthStatus() {
+      fetch('/auth/status')
+        .then(response => response.json())
+        .then(data => {
+          if (data.authenticated) {
+            markAuthenticated();
+          } else {
+            statusContainer.classList.remove('authenticated');
+            statusText.textContent = 'Desconectado. Recarregando...';
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao verificar status:', error);
+        });
+    }
+    
+    // Inicia o sistema com uma estratégia combinada
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("Inicializando página de QR Code");
+      
+      // Tenta usar SSE primeiro
+      setupQRCodeStream();
+      
+      // Verificação de segurança: Se nenhum QR code for recebido em 15s, 
+      // tentamos o polling como último recurso
+      setTimeout(() => {
+        if (!qrReceived) {
+          console.log("Nenhum QR code recebido via SSE após 15s, tentando polling...");
+          startQRCodePolling();
+        }
+      }, 15000);
+    });
+  </script>
+</body>
+</html>
