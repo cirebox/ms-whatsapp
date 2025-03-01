@@ -1,4 +1,4 @@
-// Entidade de Mensagem - segue o princípio S (Single Responsibility)
+// Modelo de mensagem
 export interface MessageContent {
   text?: string;
   media?: Buffer;
@@ -18,17 +18,26 @@ export class Message {
 
   // Factory method para criar uma mensagem a partir de dados do WhatsApp
   static fromWhatsApp(data: any): Message {
-    return new Message(
-      data.id._serialized || data.id,
-      data.from || data._data.from,
-      data.to || data._data.to,
-      {
-        text: data.body || data._data.body,
-        // Os outros campos seriam preenchidos se fosse uma mensagem com mídia
-      },
-      new Date(data.timestamp * 1000 || Date.now()),
-      data.fromMe || data._data.fromMe || false,
-    );
+    // Extrai o ID (pode estar em formatos diferentes)
+    const id = data.id._serialized || data.id;
+
+    // Extrai dados do remetente/destinatário (podem estar em diferentes locais)
+    const from = data.from || data._data?.from;
+    const to = data.to || data._data?.to;
+
+    // Extrai o conteúdo da mensagem
+    const content = {
+      text: data.body || data._data?.body,
+      // Outros campos seriam preenchidos se fosse uma mensagem com mídia
+    };
+
+    // Extrai o timestamp e converte para Date
+    const timestamp = new Date(data.timestamp ? data.timestamp * 1000 : Date.now());
+
+    // Verifica se a mensagem foi enviada pelo usuário
+    const isFromMe = data.fromMe || data._data?.fromMe || false;
+
+    return new Message(id, from, to, content, timestamp, isFromMe);
   }
 
   // Factory method para criar uma mensagem a partir de dados da API
@@ -38,12 +47,12 @@ export class Message {
       data.from,
       data.to,
       {
-        text: data.content.text,
-        media: data.content.media,
-        mediaType: data.content.mediaType,
-        caption: data.content.caption,
+        text: data.content?.text,
+        media: data.content?.media,
+        mediaType: data.content?.mediaType,
+        caption: data.content?.caption,
       },
-      new Date(data.timestamp || Date.now()),
+      data.timestamp ? new Date(data.timestamp) : new Date(),
       data.isFromMe || false,
     );
   }
