@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WhatsAppDevice {
+  id            String    @id @default(uuid())
+  name          String
+  phoneNumber   String?
+  sessionId     String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastConnected DateTime?
+  isActive      Boolean   @default(true)
+  messages      Message[]
+}
+
+model Message {
+  id         String         @id @default(uuid())
+  whatsappId String?
+  from       String
+  to         String
+  content    String?
+  mediaUrl   String?
+  mediaType  String?
+  caption    String?
+  timestamp  DateTime       @default(now())
+  status     MessageStatus  @default(SENT)
+  isFromMe   Boolean        @default(true)
+  deviceId   String
+  device     WhatsAppDevice @relation(fields: [deviceId], references: [id])
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}

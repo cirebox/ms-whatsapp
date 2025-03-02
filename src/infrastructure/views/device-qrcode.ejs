@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    :root {
+      --primary-color: #25D366;
+      --secondary-color: #128C7E;
+      --dark-color: #075E54;
+      --light-color: #DCF8C6;
+      --gray-color: #f0f2f5;
+      --text-color: #333;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --success-color: #28a745;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: var(--gray-color);
+      color: var(--text-color);
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    
+    .device-info {
+      margin-bottom: 2rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1rem;
+    }
+    
+    .device-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--dark-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .device-status {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-left: 0.5rem;
+    }
+    
+    .status-active {
+      background-color: var(--success-color);
+      color: white;
+    }
+    
+    .status-inactive {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .qr-container {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+    
+    #qrcode {
+      width: 250px;
+      height: 250px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #qrcode img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    
+    .info-row {
+      display: flex;
+      margin-bottom: 0.5rem;
+    }
+    
+    .info-label {
+      font-weight: 500;
+      width: 150px;
+      color: #666;
+    }
+    
+    .info-value {
+      flex: 1;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      font-weight: 500;
+      text-align: center;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      border: none;
+      font-size: 0.9rem;
+      margin: 0.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    .btn-warning {
+      background-color: var(--warning-color);
+      color: #212529;
+    }
+    
+    .btn-warning:hover {
+      background-color: #e0a800;
+    }
+    
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid var(--primary-color);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .alert {
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.25rem;
+    }
+    
+    .alert-success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+    
+    .alert-warning {
+      color: #856404;
+      background-color: #fff3cd;
+      border-color: #ffeeba;
+    }
+    
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+    
+    .note {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    .connected-info {
+      margin-top: 2rem;
+      background-color: var(--light-color);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: left;
+    }
+    
+    footer {
+      background-color: var(--dark-color);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-top: auto;
+    }
+    
+    .actions {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .card {
+        padding: 1rem;
+      }
+      
+      .info-row {
+        flex-direction: column;
+      }
+      
+      .info-label {
+        width: 100%;
+        margin-bottom: 0.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><%= device.name %> - QR Code</h1>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="device-info">
+        <div class="device-name">
+          <%= device.name %>
+          <span class="device-status <%= isAuthenticated ? 'status-active' : 'status-inactive' %>">
+            <%= isAuthenticated ? 'Conectado' : 'Desconectado' %>
+          </span>
+        </div>
+        
+        <div class="info-row">
+          <span class="info-label">ID:</span>
+          <span class="info-value"><%= device.id %></span>
+        </div>
+        
+        <div class="info-row">
+          <span class="info-label">Número:</span>
+          <span class="info-value"><%= device.phoneNumber || 'Não autenticado' %></span>
+        </div>
+        
+        <div class="info-row">
+          <span class="info-label">Criado em:</span>
+          <span class="info-value"><%= new Date(device.createdAt).toLocaleString() %></span>
+        </div>
+        
+        <div class="info-row">
+          <span class="info-label">Última conexão:</span>
+          <span class="info-value"><%= device.lastConnected ? new Date(device.lastConnected).toLocaleString() : 'Nunca' %></span>
+        </div>
+      </div>
+      
+      <% if (!isAuthenticated) { %>
+        <div class="alert alert-warning">
+          Este dispositivo não está autenticado. Escaneie o QR Code abaixo com o WhatsApp para conectar.
+        </div>
+        
+        <div class="qr-container">
+          <div id="qrcode">
+            <% if (qrCode) { %>
+              <img src="<%= qrCode %>" alt="QR Code para autenticação do WhatsApp">
+            <% } else { %>
+              <div class="loader" id="loader"></div>
+              <p id="loading-text">Gerando QR Code, por favor aguarde...</p>
+            <% } %>
+          </div>
+        </div>
+        
+        <div class="note">
+          <p>Instruções:</p>
+          <ol style="text-align: left;">
+            <li>Abra o WhatsApp no seu celular</li>
+            <li>Toque em "Configurações" e selecione "WhatsApp Web/Desktop"</li>
+            <li>Aponte a câmera para o QR Code acima</li>
+            <li>Aguarde a confirmação da conexão</li>
+          </ol>
+        </div>
+      <% } else { %>
+        <div class="alert alert-success">
+          <strong>Dispositivo conectado!</strong> Este dispositivo está autenticado e pronto para enviar e receber mensagens.
+          <% if (typeof isDefault !== 'undefined' && isDefault) { %>
+            <br><strong>Este é o dispositivo padrão para envio de mensagens.</strong>
+          <% } %>
+        </div>
+        
+        <div class="connected-info">
+          <h3>Informações da conexão</h3>
+          <p><strong>Número:</strong> <%= device.phoneNumber || 'Desconhecido' %></p>
+          <p><strong>Status:</strong> Ativo</p>
+          <p><strong>Sessão:</strong> <%= device.sessionId %></p>
+          <p><strong>Dispositivo padrão:</strong> <%= (typeof isDefault !== 'undefined' && isDefault) ? 'Sim' : 'Não' %></p>
+        </div>
+      <% } %>
+      
+      <div class="actions">
+        <% if (!isAuthenticated) { %>
+          <button class="btn btn-primary" onclick="refreshQRCode()">Atualizar QR Code</button>
+        <% } else { %>
+          <button class="btn btn-warning" onclick="reconnectDevice()">Reconectar</button>
+          <% if (typeof isDefault === 'undefined' || !isDefault) { %>
+            <button class="btn btn-primary" onclick="setAsDefault()">Definir como Padrão</button>
+          <% } %>
+        <% } %>
+        <a href="/devices" class="btn btn-secondary">Voltar para Dispositivos</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>WhatsApp Multi-Device API &copy; <%= new Date().getFullYear() %></p>
+  </footer>
+
+  <script>
+    // Função para atualizar o QR Code
+    function refreshQRCode() {
+      location.reload();
+    }
+    
+    // Função para reconectar dispositivo
+    function reconnectDevice() {
+      fetch('/api/devices/<%= device.id %>/reconnect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Solicitação de reconexão enviada com sucesso.');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        } else {
+          alert('Erro ao reconectar dispositivo: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao reconectar dispositivo.');
+      });
+    }
+    
+    // Função para definir como dispositivo padrão
+    function setAsDefault() {
+      fetch('/api/devices/<%= device.id %>/set-default', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Dispositivo definido como padrão com sucesso.');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        } else {
+          alert('Erro ao definir dispositivo como padrão: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao definir dispositivo como padrão.');
+      });
+    }
+    
+    // Se não está autenticado e não tem QR Code, verifica periodicamente
+    <% if (!isAuthenticated && !qrCode) { %>
+      setTimeout(() => {
+        location.reload();
+      }, 5000);
+    <% } %>
+    
+    // Se está desconectado, verifica periodicamente se já foi conectado
+    <% if (!isAuthenticated) { %>
+      setInterval(() => {
+        fetch('/api/devices/<%= device.id %>')
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.data.isConnected) {
+              // Se acabou de se conectar, recarrega a página
+              location.reload();
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao verificar status:', error);
+          });
+      }, 10000); // Verifica a cada 10 segundos
+    <% } %>
+    
+    // Configuração para atualização automática do QR Code
+    <% if (!isAuthenticated && qrCode) { %>
+      // Recarrega a página a cada 30 segundos para obter um novo QR Code
+      setTimeout(() => {
+        location.reload();
+      }, 30000);
+    <% } %>
+  </script>
+</body>
+</html>

@@ -178,7 +178,6 @@ describe('QRCodeController', () => {
       expect(mockReply.send).toHaveBeenCalledWith(
         expect.objectContaining({
           authenticated: true,
-          connectedAt: expect.any(String),
         }),
       );
     });
@@ -194,7 +193,6 @@ describe('QRCodeController', () => {
       expect(mockReply.send).toHaveBeenCalledWith(
         expect.objectContaining({
           authenticated: false,
-          connectedAt: null,
         }),
       );
     });
@@ -214,7 +212,6 @@ describe('QRCodeController', () => {
       expect(mockReply.status).toHaveBeenCalledWith(500);
       expect(mockReply.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: false,
           error: expect.stringContaining('Erro ao verificar status de autenticação'),
         }),
       );

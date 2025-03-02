@@ -9,6 +9,11 @@ const mockWhatsAppService: jest.Mocked<IWhatsAppService> = {
   initialize: jest.fn(),
   getQRCode: jest.fn(),
   isAuthenticated: jest.fn(),
+  getActiveSessions: jest.fn(),
+  closeSession: jest.fn(),
+  getSessionInfo: jest.fn(),
+  getDefaultSession: jest.fn(),
+  setDefaultSession: jest.fn(),
   sendTextMessage: jest.fn(),
   sendMediaMessage: jest.fn(),
   onMessage: jest.fn(),
@@ -46,9 +51,10 @@ describe('ReceiveMessageUseCase', () => {
       new Date(),
       true, // isFromMe = true
     );
+    const sessionId = 'test-session-123';
 
     // Act
-    await useCase.execute(message);
+    await useCase.execute(message, sessionId);
 
     // Assert
     expect(mockLLMService.processMessage).not.toHaveBeenCalled();
@@ -65,16 +71,17 @@ describe('ReceiveMessageUseCase', () => {
       new Date(),
       false, // isFromMe = false
     );
+    const sessionId = 'test-session-123';
 
     const llmResponse = 'Hello, human! How can I help you?';
     mockLLMService.processMessage.mockResolvedValueOnce(llmResponse);
 
     // Act
-    await useCase.execute(message);
+    await useCase.execute(message, sessionId);
 
     // Assert
     expect(mockLogger.info).toHaveBeenCalledWith(
-      expect.stringContaining(`Mensagem recebida de ${message.from}`),
+      expect.stringContaining(`Mensagem recebida de ${message.from} na sessão ${sessionId}`),
     );
 
     expect(mockLLMService.processMessage).toHaveBeenCalledWith(
@@ -82,13 +89,18 @@ describe('ReceiveMessageUseCase', () => {
       expect.objectContaining({
         from: message.from,
         timestamp: message.timestamp,
+        sessionId: sessionId,
       }),
     );
 
-    expect(mockWhatsAppService.sendTextMessage).toHaveBeenCalledWith(message.from, llmResponse);
+    expect(mockWhatsAppService.sendTextMessage).toHaveBeenCalledWith(
+      message.from,
+      llmResponse,
+      sessionId,
+    );
 
     expect(mockLogger.info).toHaveBeenCalledWith(
-      expect.stringContaining(`Resposta enviada para ${message.from}`),
+      expect.stringContaining(`Resposta enviada para ${message.from} usando sessão ${sessionId}`),
     );
   });
 
@@ -102,9 +114,10 @@ describe('ReceiveMessageUseCase', () => {
       new Date(),
       false,
     );
+    const sessionId = 'test-session-123';
 
     // Act
-    await useCase.execute(message);
+    await useCase.execute(message, sessionId);
 
     // Assert
     expect(mockLLMService.processMessage).not.toHaveBeenCalled();
@@ -121,12 +134,13 @@ describe('ReceiveMessageUseCase', () => {
       new Date(),
       false,
     );
+    const sessionId = 'test-session-123';
 
     const error = new Error('LLM processing error');
     mockLLMService.processMessage.mockRejectedValueOnce(error);
 
     // Act
-    await useCase.execute(message);
+    await useCase.execute(message, sessionId);
 
     // Assert
     expect(mockLogger.error).toHaveBeenCalledWith(

@@ -5,9 +5,34 @@ import axios from 'axios';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-// Utilizando o mesmo mock de config compartilhado com os outros testes
-// Importa o mock para poder atualizá-lo nos testes
-const envMock = require('../../../config/env');
+// Mock para env config
+jest.mock('../../../config/env', () => {
+  const mockEnv = {
+    llm: {
+      apiUrl: 'https://test-llm-api.com/chat',
+      apiKey: 'test-api-key',
+      requestFormat: '',
+      responsePath: '',
+    },
+    logger: {
+      level: 'info',
+    },
+    server: {
+      port: 3000,
+      host: 'localhost',
+    },
+  };
+
+  return {
+    __esModule: true,
+    default: mockEnv,
+    updateForTest: (newValues: Record<string, any>) => {
+      Object.assign(mockEnv.llm, newValues);
+    },
+  };
+});
+
+import envConfig from '../../../config/env';
 
 // Create mock logger
 const mockLogger = {
@@ -25,7 +50,7 @@ describe('HttpLLMAdapter Custom Format Tests', () => {
     mockedAxios.create.mockReturnValue(mockedAxios as any);
 
     // Reset env mock para o valor padrão antes de cada teste
-    envMock.updateMock({
+    (envConfig as any).updateForTest({
       apiUrl: 'https://test-llm-api.com/chat',
       apiKey: 'test-api-key',
       requestFormat: '',
@@ -35,7 +60,7 @@ describe('HttpLLMAdapter Custom Format Tests', () => {
 
   it('should format request payload using custom format for OpenAI style', async () => {
     // Configura o mock com formato personalizado para OpenAI
-    envMock.updateMock({
+    (envConfig as any).updateForTest({
       requestFormat:
         '{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"Você é um assistente"},{"role":"user","content":"{message}"}]}',
     });
@@ -67,7 +92,7 @@ describe('HttpLLMAdapter Custom Format Tests', () => {
 
   it('should format request payload using custom format for Claude style', async () => {
     // Configura o mock com formato personalizado para Claude
-    envMock.updateMock({
+    (envConfig as any).updateForTest({
       requestFormat:
         '{"model":"claude-3-haiku-20240307","system":"Você é um assistente","messages":[{"role":"user","content":"{message}"}]}',
     });
@@ -97,7 +122,7 @@ describe('HttpLLMAdapter Custom Format Tests', () => {
 
   it('should handle context substitution in custom format', async () => {
     // Configura o mock com formato personalizado que inclui contexto
-    envMock.updateMock({
+    (envConfig as any).updateForTest({
       requestFormat: '{"message":"{message}","context":{context}}',
     });
 
@@ -126,7 +151,7 @@ describe('HttpLLMAdapter Custom Format Tests', () => {
 
   it('should extract response using custom response path', async () => {
     // Configura o mock com caminho de resposta personalizado
-    envMock.updateMock({
+    (envConfig as any).updateForTest({
       responsePath: 'data.custom.nested.response',
     });
 
@@ -157,7 +182,7 @@ describe('HttpLLMAdapter Custom Format Tests', () => {
 
   it('should handle malformed custom request format gracefully', async () => {
     // Configura o mock com formato JSON inválido
-    envMock.updateMock({
+    (envConfig as any).updateForTest({
       requestFormat: 'not-valid-json-format',
     });
 
@@ -189,7 +214,7 @@ describe('HttpLLMAdapter Custom Format Tests', () => {
 
   it('should handle array structures in custom format', async () => {
     // Configura o mock com formato personalizado que usa arrays
-    envMock.updateMock({
+    (envConfig as any).updateForTest({
       requestFormat:
         '{"messages":[{"type":"text","content":"{message}"},{"type":"metadata","content":{context}}]}',
     });

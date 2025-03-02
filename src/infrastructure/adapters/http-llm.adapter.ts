@@ -39,11 +39,6 @@ export class HttpLLMAdapter implements ILLMService {
       const config = this.prepareRequestConfig(message, context);
 
       // Faz a chamada à API externa
-
-      //     curl -X POST http://localhost:3000/process \
-      // -H "Content-Type: application/json" \
-      // -d '{"prompt": "dado o objeto a seguir '{name:'',type:'despesa'}' crie uma categoria para controle financeiro chamada 'Manutenção no carro'", "model": "mixtral-8x7b-32768"}'
-
       const response = await this.client.post(
         this.apiUrl,
         {

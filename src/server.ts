@@ -9,17 +9,22 @@ import ejs from 'ejs';
 import logger from './config/logger';
 import { swaggerOptions, swaggerUiOptions } from './config/swagger';
 
-import { WhatsAppAdapter } from './infrastructure/adapters/whatsapp.adapter';
+import { PrismaService } from './infrastructure/database/prisma.service';
+import { WhatsAppDeviceRepository } from './infrastructure/repositories/whatsapp-device.repository';
+import { MultiWhatsAppAdapter } from './infrastructure/adapters/multi-whatsapp.adapter';
 import { HttpLLMAdapter } from './infrastructure/adapters/http-llm.adapter';
 
 import { SendMessageUseCase } from './domain/usecases/send-message.usecase';
 import { ReceiveMessageUseCase } from './domain/usecases/receive-message.usecase';
+import { DeviceManagementUseCase } from './domain/usecases/device-management.usecase';
 
 import { QRCodeController } from './infrastructure/http/controllers/qrcode.controller';
 import { WebhookController } from './infrastructure/http/controllers/webhook.controller';
+import { DeviceController } from './infrastructure/http/controllers/device.controller';
 
 import { registerQRCodeRoutes } from './infrastructure/http/routes/qrcode.routes';
 import { registerWebhookRoutes } from './infrastructure/http/routes/webhook.routes';
+import { registerDeviceRoutes } from './infrastructure/http/routes/device.routes';
 
 // Função para criar e configurar o servidor - segue o princípio O (Open/Closed)
 export async function createServer(): Promise<any> {
@@ -69,25 +74,45 @@ export async function createServer(): Promise<any> {
     await server.register(import('@fastify/swagger'), swaggerOptions);
     await server.register(import('@fastify/swagger-ui'), swaggerUiOptions);
 
+    // Inicializa o serviço Prisma
+    const prismaService = new PrismaService(logger);
+    await prismaService.onModuleInit();
+
+    // Instancia o repositório de dispositivos
+    const deviceRepository = new WhatsAppDeviceRepository(prismaService, logger);
+
     // Instancia os adaptadores
-    const whatsAppAdapter = new WhatsAppAdapter(logger);
+    const whatsAppAdapter = new MultiWhatsAppAdapter(logger, deviceRepository);
     const llmAdapter = new HttpLLMAdapter(logger);
 
     // Instancia os casos de uso
-    const sendMessageUseCase = new SendMessageUseCase(whatsAppAdapter, logger);
+    const sendMessageUseCase = new SendMessageUseCase(whatsAppAdapter, logger, deviceRepository);
     const receiveMessageUseCase = new ReceiveMessageUseCase(whatsAppAdapter, llmAdapter, logger);
+    const deviceManagementUseCase = new DeviceManagementUseCase(
+      whatsAppAdapter,
+      deviceRepository,
+      logger,
+    );
 
     // Registra o handler de mensagens recebidas
     receiveMessageUseCase.registerHandler();
 
     // Instancia os controllers
     const qrCodeController = new QRCodeController(whatsAppAdapter, logger);
-    const webhookController = new WebhookController(sendMessageUseCase, logger, whatsAppAdapter);
+    const webhookController = new WebhookController(
+      sendMessageUseCase,
+      logger,
+      whatsAppAdapter,
+      deviceRepository,
+    );
+    const deviceController = new DeviceController(deviceManagementUseCase, logger);
 
     // Registra as rotas
     registerQRCodeRoutes(server, qrCodeController);
     registerWebhookRoutes(server, webhookController);
+    registerDeviceRoutes(server, deviceController);
 
+    // Rota da home page
     server.get('/', (request, reply) => {
       return reply.view('home', {
         title: 'WhatsApp API - Documentação',
@@ -99,15 +124,16 @@ export async function createServer(): Promise<any> {
       return reply.redirect('/documentation');
     });
 
+    // Handler para rotas não encontradas
     server.setNotFoundHandler((request, reply) => {
       logger.warn(`Rota não encontrada: ${request.method} ${request.url}`);
 
       // Verifica se é uma tentativa de acesso pelo WhatsApp
       if (request.url.includes('@') || request.url.length > 50) {
         logger.info(
-          'URL parece ser um formato específico do WhatsApp, redirecionando para /qrcode',
+          'URL parece ser um formato específico do WhatsApp, redirecionando para /devices',
         );
-        return reply.redirect('/qrcode');
+        return reply.redirect('/devices');
       }
 
       reply.status(404).send({
@@ -117,6 +143,7 @@ export async function createServer(): Promise<any> {
       });
     });
 
+    // Handler de erros
     server.setErrorHandler((error, request, reply) => {
       logger.error(`Erro não capturado: ${error.message}`);
       logger.error(error.stack);
@@ -134,6 +161,12 @@ export async function createServer(): Promise<any> {
       adapters: {
         whatsApp: whatsAppAdapter,
         llm: llmAdapter,
+      },
+      repositories: {
+        deviceRepository,
+      },
+      services: {
+        prismaService,
       },
     };
   } catch (error) {

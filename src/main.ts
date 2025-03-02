@@ -7,8 +7,8 @@ async function startServer(): Promise<void> {
   try {
     logger.info('Iniciando servidor WhatsApp API...');
 
-    // Cria o servidor e obtém os adaptadores
-    const { server, adapters } = await createServer();
+    // Cria o servidor e obtém os adaptadores e serviços
+    const { server, services } = await createServer();
 
     // Inicia o servidor na porta e host configurados
     await server.listen({
@@ -17,28 +17,28 @@ async function startServer(): Promise<void> {
     });
 
     logger.info(`Servidor HTTP iniciado em http://${env.server.host}:${env.server.port}`);
-    logger.info(`Acesse http://localhost:${env.server.port}/qrcode para escanear o QR Code`);
-
-    // Agora inicializa o WhatsApp de forma assíncrona
-    logger.info('Inicializando conexão com WhatsApp...');
-
-    try {
-      // Inicializa o WhatsApp em segundo plano
-      await adapters.whatsApp.initialize();
-      logger.info('Conexão com WhatsApp inicializada com sucesso');
-    } catch (whatsappError) {
-      // Em caso de falha na inicialização do WhatsApp, apenas logamos o erro
-      // mas mantemos o servidor HTTP funcionando
-      logger.error(`Erro ao inicializar WhatsApp: ${(whatsappError as Error).message}`);
-      logger.warn(
-        'O servidor HTTP continuará funcionando, mas as funções de WhatsApp estarão indisponíveis',
-      );
-    }
+    logger.info(
+      `Acesse http://localhost:${env.server.port}/devices para gerenciar dispositivos WhatsApp`,
+    );
 
     // Gerencia o encerramento do servidor
     const shutdown = async (): Promise<void> => {
       logger.info('Encerrando servidor...');
-      await server.close();
+
+      try {
+        // Fecha a conexão com o banco de dados
+        if (services.prismaService) {
+          logger.info('Desconectando do banco de dados...');
+          await services.prismaService.onModuleDestroy();
+        }
+
+        // Fecha o servidor HTTP
+        await server.close();
+        logger.info('Servidor encerrado com sucesso');
+      } catch (error) {
+        logger.error(`Erro ao encerrar servidor: ${(error as Error).message}`);
+      }
+
       process.exit(0);
     };
 
@@ -52,4 +52,6 @@ async function startServer(): Promise<void> {
 }
 
 // Inicia o servidor
-startServer();
+startServer()
+  .then(() => logger.info('Servidor iniciado com sucesso'))
+  .catch(error => logger.error(`Erro ao iniciar o servidor: ${(error as Error).message}`));

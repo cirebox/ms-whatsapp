@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    :root {
+      --primary-color: #25D366;
+      --secondary-color: #128C7E;
+      --dark-color: #075E54;
+      --light-color: #DCF8C6;
+      --gray-color: #f0f2f5;
+      --text-color: #333;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --success-color: #28a745;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: var(--gray-color);
+      color: var(--text-color);
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .container {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--dark-color);
+      margin: 0;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      font-weight: 500;
+      text-align: center;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      border: none;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #bd2130;
+    }
+    
+    .btn-warning {
+      background-color: var(--warning-color);
+      color: #212529;
+    }
+    
+    .btn-warning:hover {
+      background-color: #e0a800;
+    }
+    
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+    
+    .device-status {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .status-active {
+      background-color: var(--success-color);
+      color: white;
+    }
+    
+    .status-inactive {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .add-device-form {
+      margin-bottom: 2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .device-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: transform 0.2s;
+    }
+    
+    .device-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .device-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .device-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--dark-color);
+      margin: 0;
+    }
+    
+    .device-details {
+      margin-bottom: 1.5rem;
+    }
+    
+    .device-detail {
+      display: flex;
+      margin-bottom: 0.5rem;
+    }
+    
+    .detail-label {
+      font-weight: 500;
+      width: 120px;
+      color: #666;
+    }
+    
+    .detail-value {
+      flex: 1;
+    }
+    
+    .device-actions {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+    }
+    
+    .no-devices {
+      text-align: center;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .alert {
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.25rem;
+    }
+    
+    .alert-success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+    
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 500px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .close:hover {
+      color: black;
+    }
+    
+    .modal-header {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .modal-footer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+      text-align: right;
+    }
+    
+    footer {
+      background-color: var(--dark-color);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-top: auto;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .device-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .card-header .btn {
+        margin-top: 1rem;
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gerenciador de Dispositivos WhatsApp</h1>
+  </header>
+
+  <div class="container">
+    <!-- Formul�rio para adicionar novo dispositivo -->
+    <div class="card add-device-form">
+      <div class="card-header">
+        <h2 class="card-title">Adicionar Novo Dispositivo</h2>
+      </div>
+      <form id="newDeviceForm">
+        <div class="form-group">
+          <label for="deviceName" class="form-label">Nome do Dispositivo</label>
+          <input type="text" id="deviceName" name="name" class="form-control" placeholder="Ex: WhatsApp Vendas" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Adicionar Dispositivo</button>
+      </form>
+    </div>
+    
+    <!-- Lista de dispositivos -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Dispositivos</h2>
+        <button onclick="refreshDevices()" class="btn btn-secondary">Atualizar Lista</button>
+      </div>
+      
+      <% if (devices && devices.length > 0) { %>
+        <div class="device-grid">
+          <% devices.forEach(device => { %>
+            <div class="device-card" data-device-id="<%= device.id %>" data-connected="<%= device.isConnected %>">
+              <div class="device-header">
+                <h3 class="device-name"><%= device.name %></h3>
+                <span class="device-status <%= device.isConnected ? 'status-active' : 'status-inactive' %>">
+                  <%= device.isConnected ? 'Conectado' : 'Desconectado' %>
+                </span>
+              </div>
+              
+              <div class="device-details">
+                <div class="device-detail">
+                  <span class="detail-label">N�mero:</span>
+                  <span class="detail-value"><%= device.phoneNumber || 'N�o autenticado' %></span>
+                </div>
+                
+                <div class="device-detail">
+                  <span class="detail-label">Criado em:</span>
+                  <span class="detail-value"><%= new Date(device.createdAt).toLocaleString() %></span>
+                </div>
+                
+                <div class="device-detail">
+                  <span class="detail-label">Ult. Conexão:</span>
+                  <span class="detail-value">
+                    <%= device.lastConnected ? new Date(device.lastConnected).toLocaleString() : 'Nunca' %>
+                  </span>
+                </div>
+              </div>
+              
+              <div class="device-actions">
+                <div>
+                  <a href="/devices/<%= device.id %>/qrcode" class="btn btn-primary btn-sm">Ver QR Code</a>
+                  <button onclick="reconnectDevice('<%= device.id %>')" class="btn btn-warning btn-sm">Reconectar</button>
+                </div>
+                <button onclick="showDeleteModal('<%= device.id %>', '<%= device.name %>')" class="btn btn-danger btn-sm">Remover</button>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="no-devices">
+          <p>Nenhum dispositivo encontrado. Adicione seu primeiro dispositivo usando o formulário acima.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- Modal de Confirma��o para Excluir Dispositivo -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+        <h2>Confirmar Exclus�o</h2>
+      </div>
+      <p id="deleteModalText">Tem certeza que deseja remover este dispositivo?</p>
+      <div class="modal-footer">
+        <button onclick="closeDeleteModal()" class="btn btn-secondary">Cancelar</button>
+        <button id="confirmDeleteButton" class="btn btn-danger">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>WhatsApp Multi-Device API &copy; <%= new Date().getFullYear() %></p>
+  </footer>
+
+  <script>
+    // Formul�rio para adicionar dispositivo
+    document.getElementById('newDeviceForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const deviceName = document.getElementById('deviceName').value;
+      
+      fetch('/api/devices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: deviceName
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Dispositivo criado com sucesso!');
+          location.reload();
+        } else {
+          alert('Erro ao criar dispositivo: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao criar dispositivo.');
+      });
+    });
+    
+    // Fun��o para atualizar lista de dispositivos
+    function refreshDevices() {
+      location.reload();
+    }
+    
+    // Fun��o para reconectar dispositivo
+    function reconnectDevice(deviceId) {
+      fetch(`/api/devices/${deviceId}/reconnect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Solicitação de reconexão enviada com sucesso.');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        } else {
+          alert('Erro ao reconectar dispositivo: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao reconectar dispositivo.');
+      });
+    }
+    
+    // Modal de confirma��o para excluir dispositivo
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteModalText = document.getElementById('deleteModalText');
+    const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    
+    function showDeleteModal(deviceId, deviceName) {
+      deleteModalText.textContent = `Tem certeza que deseja remover o dispositivo "${deviceName}"?`;
+      
+      confirmDeleteButton.onclick = function() {
+        deleteDevice(deviceId);
+        closeDeleteModal();
+      };
+      
+      deleteModal.style.display = 'block';
+    }
+    
+    function closeDeleteModal() {
+      deleteModal.style.display = 'none';
+    }
+    
+    // Fechar modal ao clicar fora dele
+    window.onclick = function(event) {
+      if (event.target == deleteModal) {
+        closeDeleteModal();
+      }
+    };
+    
+    // Fun��o para excluir dispositivo
+    function deleteDevice(deviceId) {
+      fetch(`/api/devices/${deviceId}`, {
+        method: 'DELETE'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Dispositivo removido com sucesso.');
+          location.reload();
+        } else {
+          alert('Erro ao remover dispositivo: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao remover dispositivo.');
+      });
+    }
+    
+    // Verificar status atualizado a cada 30 segundos
+    setInterval(() => {
+      fetch('/api/devices/status')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.count > 0) {
+            // Se algum dispositivo mudou de status, recarrega a p�gina
+            const deviceStatusChanged = data.devices.some(device => {
+              const deviceElement = document.querySelector(`[data-device-id="${device.id}"]`);
+              if (deviceElement) {
+                const currentStatus = deviceElement.dataset.connected === 'true';
+                return currentStatus !== device.isConnected;
+              }
+              return false;
+            });
+            
+            if (deviceStatusChanged) {
+              location.reload();
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao verificar status dos dispositivos:', error);
+        });
+    }, 30000);
+  </script>
+</body>
+</html>
